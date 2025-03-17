@@ -4,9 +4,25 @@ import React from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
+interface Workstream {
+  id: number;
+  name: string;
+  target_threshold: number;
+}
+
+interface Activity {
+  id: number;
+  name: string;
+  workstream_id: number;
+  weight: number;
+  actual_points: number;
+  possible_points: number;
+  workstreams?: Workstream; // populated by join query
+}
+
 interface ActivitiesClientProps {
-  activities: any[];
-  workstreams: any[];
+  activities: Activity[];
+  workstreams: Workstream[];
   error?: string;
 }
 
@@ -15,7 +31,6 @@ export default function ActivitiesClient({
   workstreams,
   error,
 }: ActivitiesClientProps) {
-  // Read query params from the URL
   const searchParams = useSearchParams();
   const successParam = searchParams.get('success');
   const errorParam = searchParams.get('error');
@@ -27,7 +42,6 @@ export default function ActivitiesClient({
         Back to Dashboard
       </Link>
 
-      {/* Display success/error alerts */}
       {successParam && (
         <div className="mt-4 p-2 bg-green-100 text-green-800 rounded">
           Activity created successfully!
@@ -44,13 +58,12 @@ export default function ActivitiesClient({
         </div>
       )}
 
-      {/* List existing activities */}
       <div className="mt-6">
         {activities.length > 0 ? (
           <ul className="list-disc ml-4">
-            {activities.map((act: any) => (
+            {activities.map((act) => (
               <li key={act.id}>
-                {act.name} (Workstream: {act.workstreams ? act.workstreams.name : act.workstream_id}, Weight: {act.weight}, Actual Points: {act.actual_points})
+                {act.name} (Workstream: {act.workstreams?.name ?? act.workstream_id}, Weight: {act.weight}, Actual Points: {act.actual_points})
               </li>
             ))}
           </ul>
@@ -59,7 +72,6 @@ export default function ActivitiesClient({
         )}
       </div>
 
-      {/* Add new activity form */}
       <div className="mt-8">
         <h2 className="text-xl font-semibold mb-2">Add New Activity</h2>
         <form method="POST" action="/api/activities/create" className="space-y-4">
@@ -72,7 +84,7 @@ export default function ActivitiesClient({
           />
           <select name="workstream_id" className="border p-2 w-full" required>
             <option value="">Select Workstream</option>
-            {workstreams.map((ws: any) => (
+            {workstreams.map((ws) => (
               <option key={ws.id} value={ws.id}>
                 {ws.name}
               </option>

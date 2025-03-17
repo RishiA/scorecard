@@ -2,10 +2,15 @@
 
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import React from 'react';
+
+interface Workstream {
+  id: number;
+  name: string;
+  target_threshold: number;
+}
 
 interface WorkstreamsClientProps {
-  workstreams: any[];
+  workstreams: Workstream[];
   error?: string;
 }
 
@@ -13,7 +18,6 @@ export default function WorkstreamsClient({
   workstreams,
   error,
 }: WorkstreamsClientProps) {
-  // 1. Read the search params from the URL
   const searchParams = useSearchParams();
   const successParam = searchParams.get('success');
   const errorParam = searchParams.get('error');
@@ -21,13 +25,10 @@ export default function WorkstreamsClient({
   return (
     <div className="p-8">
       <h1 className="text-2xl font-bold mb-4">Manage Workstreams</h1>
-      
-        
       <Link href="/admin" className="text-blue-500 underline">
         Back to Dashboard
       </Link>
-      <br></br>
-      {/* Display success or error alerts */}
+
       {successParam && (
         <div className="mb-4 bg-green-100 text-green-800 p-2 rounded">
           Workstream created successfully!
@@ -38,34 +39,29 @@ export default function WorkstreamsClient({
           Something went wrong. Please try again.
         </div>
       )}
-
       {error && (
         <div className="mb-4 bg-red-100 text-red-800 p-2 rounded">
-          Error fetching workstreams: {error}
+          Error: {error}
         </div>
       )}
 
-      {/* List existing workstreams */}
-      {workstreams.length > 0 ? (
-        <ul className="list-disc ml-4">
-          {workstreams.map((ws) => (
-            <li key={ws.id}>
-              {ws.name} (Target: {ws.target_threshold}%)
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>No workstreams found.</p>
-      )}
+      <div className="mt-6">
+        {workstreams.length > 0 ? (
+          <ul className="list-disc ml-4">
+            {workstreams.map((ws) => (
+              <li key={ws.id}>
+                {ws.name} (Target: {ws.target_threshold}%)
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No workstreams found.</p>
+        )}
+      </div>
 
-      {/* Add new workstream form */}
       <div className="mt-8">
         <h2 className="text-xl font-semibold mb-2">Add New Workstream</h2>
-        <form
-          method="POST"
-          action="/api/workstreams/create"
-          className="space-y-4"
-        >
+        <form method="POST" action="/api/workstreams/create" className="space-y-4">
           <input
             type="text"
             name="name"
